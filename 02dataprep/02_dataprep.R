@@ -51,7 +51,9 @@ tab_homp_reg$homo_parents_reg
 
 ##remove missing
 
-filter(tab_homp_reg, homo_parents_reg %in% c(1,2,3,4,5), X025R %in% c(1,2,3))
+tab_homp_reg <- filter (tab_homp_reg, homo_parents_reg > 0, X025R > 0)
+
+min(tab_homp_reg$homo_parents_reg)
 
 ##rename variable X025R
 
@@ -83,7 +85,7 @@ tab_homojust_reg <- europeanvalues %>%
 
 ##remove missing
 
-filter(tab_homojust_reg, homo_just_reg %in% c(1,2,3,4,5), X025R %in% c(1,2,3))
+tab_homojust_reg <- filter (tab_homojust_reg, homo_just_reg > 0, X025R > 0)
 
 ##rename variable X025R
 
@@ -92,5 +94,6 @@ tab_homojust_reg <- rename(
   edu_level = X025R
 )
 names(tab_homojust_reg)
-  
+
+min(tab_homojust_reg$homo_just_reg)
 
