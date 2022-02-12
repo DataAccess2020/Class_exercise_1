@@ -36,7 +36,7 @@ europeanvalues <-mutate(
                             ifelse(europeanvalues$F118 == 3: 4, "Sometimes justifiable",
                                    ifelse(europeanvalues$F118 == 5: 6, "Neither justifiable nor not",
                                           ifelse(europeanvalues$F118 == 7: 8, "Often justifiable",
-                                                 ifelse(europeanvalues$F118 == 9: 10, "Alaways justifiable",
+                                                 ifelse(europeanvalues$F118 == 9: 10, "Always justifiable",
                                                         "missing"
                                                  ))))))
 table(europeanvalues$justifiable_homo)
