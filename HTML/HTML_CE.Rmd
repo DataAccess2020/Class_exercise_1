@@ -76,9 +76,5 @@ kable(table(europeanvalues$edu_level), col.names = c("lev edu", "freq"))
 
 tab_int <-select(europeanvalues, homo_parents, justifiable_homo, edu_level)
 
-View(tab_int)
-
-
-
 
 ```
