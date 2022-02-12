@@ -1,0 +1,13 @@
+---
+title: "Class_excercise_1"
+author: "Erica Ravarelli_Alba Proficuo"
+date: '2022-02-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rio)
+```
+
+
