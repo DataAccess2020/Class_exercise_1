@@ -11,15 +11,10 @@ table(europeanvalues$F118)
 table(europeanvalues$X025A_01)
 
 
-
-tablehomo_parents <- table(europeanvalues$D081, europeanvalues$X025A_01)
-tablehomo_parents
-
 europeanvalues$D081
 
-homo_parents 
 
-var_int <-mutate(
+europeanvalues <-mutate(
   europeanvalues,
   homo_parents = ifelse(europeanvalues$D081 == 1,"Agree strongly",
                         ifelse(europeanvalues$D081 == 2, "Agree",
@@ -29,4 +24,7 @@ var_int <-mutate(
                                                     "missing"
 ))))))
 
-table(var_int$homo_parents)
+
+table(europeanvalues$homo_parents)
+
+var_int <- tibble(europeanvalues$homo_parents, europeanvalues$F118, europeanvalues$X025A_01)
