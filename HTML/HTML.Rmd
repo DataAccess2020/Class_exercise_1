@@ -216,3 +216,7 @@ htmlreg(list(reg1, reg2),
         custom.model.names = c("Homosexual parents", "Justifiable homosexuality"),
         caption = "Regression models for attitudes towards homosexual couples and homosexuality by level of education")
 ```
+
+## Conclusion 
+
+Observing the bar-charts and the regressions we can conclude that, overall, people with higher levels of education tend to be more tolerant towards homosexual couples and homosexuality in general. However, not all the results we obtained met our expectations. For example, the difference between lower and upper educated people within the category 'strongly disagree' is almost null, this is probably due to the fact that we are observing 81 countries all together, where the respondents normally have different cultural backgrounds.
