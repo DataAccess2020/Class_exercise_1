@@ -4,10 +4,81 @@ author: "Erica Ravarelli_Alba Proficuo"
 date: '2022-02-12'
 output: html_document
 ---
+#Introduction
+
+This short paper is aimed at exploring the relation between level of education and individual opinions about homosexuality and homosexual couples' rights in 81 countries. The analysis relies on data coming from the joint version of European Values Study and World Values Survey (Joint EVS/WVS), conducted between 2017 and 2021 (DatasetZA7505).
+
+Over the last decades, the issue of homosexual people's and couples' rights has rapidly become one of most debated ones. Starting from the end of the XX century, the mean level of tolerance towards same-sex relationships increased, although non-negligible differences persist across countries. (Smith et al., 2014). Based on Ronald Inglehart's theory of postmaterlism, it is plausible to expect that high-income people tend to show a more tolerant attitude towards homosexual people and couples(Inglehart, 2009). This theory will be put into the form of falsifiable hypothesis using the variable "level of education" as a proxy for individual economic situation, based on previous studies which demonstrate that highest levels of education are usually associated with wealthier economic conditions. The following hypothesis will, therefore, be tested:
+ 
+ H1: More tolerant attitudes towards homosexual people are displayed by higher-educated people
+ H2: More tolerant attitudes towards homosexual couples are displayed by higher-educated people
 
 ```{r setup, include=FALSE}
+install.packages("rmarkdown", dependencies = TRUE)
 library(tidyverse)
 library(rio)
+library(knitr)
 ```
 
 
+
+```{r}
+kable(table(europeanvalues$D081), col.names = c("rights homo coup", "freq"))
+kable(table(europeanvalues$F118), col.names = c("homo just", "freq"))
+kable(table(europeanvalues$X025R), col.names = c("lev edu", "freq"))
+```
+
+```{r}
+europeanvalues$D081
+
+europeanvalues <-mutate(
+  europeanvalues,
+  homo_parents = ifelse(europeanvalues$D081 == 1,"Agree strongly",
+                        ifelse(europeanvalues$D081 == 2, "Agree",
+                               ifelse(europeanvalues$D081 == 3, "Neither agree nor disagree",
+                                      ifelse(europeanvalues$D081 == 4, "Disagree",
+                                             ifelse(europeanvalues$D081 == 5, "Disagree strongly",
+                                                    "missing"
+))))))
+
+
+table(europeanvalues$homo_parents)
+
+
+europeanvalues <-mutate(
+  europeanvalues,
+  justifiable_homo = ifelse(europeanvalues$F118 == 1: 2, "Never justifiable",
+                            ifelse(europeanvalues$F118 == 3: 4, "Sometimes justifiable",
+                                   ifelse(europeanvalues$F118 == 5: 6, "Neither justifiable nor not",
+                                          ifelse(europeanvalues$F118 == 7: 8, "Often justifiable",
+                                                 ifelse(europeanvalues$F118 == 9: 10, "Always justifiable",
+                                                        "missing"
+                                                 ))))))
+table(europeanvalues$justifiable_homo)
+
+ 
+europeanvalues$X025R
+
+europeanvalues <-mutate(
+  europeanvalues,
+  edu_level = ifelse(europeanvalues$X025R == 1, "Lower",
+                     ifelse(europeanvalues$X025R == 2, "Middle",
+                            ifelse(europeanvalues$X025R == 3, "Upper",
+                                   "missing"
+                            ))))
+table(europeanvalues$edu_level)
+
+
+kable(table(europeanvalues$homo_parents), col.names = c("rights homo coup", "freq"))
+kable(table(europeanvalues$justifiable_homo), col.names = c("homo just", "freq"))
+kable(table(europeanvalues$edu_level), col.names = c("lev edu", "freq"))
+
+
+tab_int <-select(europeanvalues, homo_parents, justifiable_homo, edu_level)
+
+View(tab_int)
+
+
+
+
+```
