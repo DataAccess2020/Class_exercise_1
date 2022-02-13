@@ -22,7 +22,7 @@ ggplot(plot_homop, aes(x=just_homo_rel, fill = edu_level)) +
 
 
 ##Regression with the variables 'edu_level' and 'homo_parents_reg'
-reg1 <- lm(homo_parents_reg ~ edu_level,
+reg1 <- lm(homo_parents_reg ~ factor(edu_level),
            data = tab_homp_reg)
 summary(reg1)
 
@@ -31,7 +31,7 @@ pred1
 
 
 ##Regression with the variables 'edu_level' and 'homo_just_reg'
-reg2 <- lm(homo_just_reg ~ edu_level,
+reg2 <- lm(homo_just_reg ~ factor(edu_level),
            data = tab_homojust_reg)
 summary(reg2)
 
@@ -41,6 +41,5 @@ pred2
 
 
 htmlreg(list(reg1, reg2),
-        custom.model.names = c("retweets", "favorites"),
-        caption = "Regression models for number of retweets/favorites with different emotional languages and for different sources")
-
+        custom.model.names = c("Homosexual parents", "Justifiable homosexuality"),
+        caption = "Regression models for attitudes towards homosexual couples and homosexuality by level of education")
