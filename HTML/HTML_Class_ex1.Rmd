@@ -1,0 +1,239 @@
+---
+title: "Untitled"
+author: "Erica Ravarelli_Alba Proficuo"
+date: '2022-02-13'
+output: html_document
+---
+# Introduction
+
+This short paper is aimed at exploring the relation between level of education and individual opinions about homosexuality and homosexual couples' rights in 81 countries. The analysis relies on data coming from the joint version of European Values Study and World Values Survey (Joint EVS/WVS), conducted between 2017 and 2021 (DatasetZA7505).
+
+Over the last decades, the issue of homosexual people's and couples' rights has rapidly become one of most debated ones. Starting from the end of the XX century, the mean level of tolerance towards same-sex relationships increased, although non-negligible differences persist across countries. (Smith et al., 2014). Based on Ronald Inglehart's theory of postmaterlism, it is plausible to expect that high-income people tend to show a more tolerant attitude towards homosexual people and couples(Inglehart, 2009). This theory will be put into the form of falsifiable hypothesis using the variable "level of education" as a proxy for individual economic situation, based on previous studies which demonstrate that highest levels of education are usually associated with wealthier economic conditions. The following hypothesis will, therefore, be tested:
+
+H1: More tolerant attitudes towards homosexual people are displayed by higher-educated people
+
+H2: More tolerant attitudes towards homosexual couples are displayed by higher-educated people
+
+# Data and method
+
+We took into consideration three variables: D081, F118 and X025R. In the first one the respondents had to express their level of agreement with the statement: 'Homosexual couples are as good parents as other couples'. In the second one the respondents had to say how much justifiable homosexuality is on a scale from 1 to 10. Finally, the last one is about the level of education of the respondents from 1 to 3.
+Then, from the variable of interest, we removed the negative values and did some data preparation for the regression models.
+
+```{r}
+library(tidyverse)
+library(rio)
+library(ggeffects)
+
+europeanvalues <- import("ZA7505_v2-0-0.dta")
+
+View(europeanvalues)
+
+
+table(europeanvalues$D081)
+table(europeanvalues$F118)
+table(europeanvalues$X025A_01)
+
+
+
+europeanvalues <-mutate(
+  europeanvalues,
+  homo_parents = ifelse(europeanvalues$D081 == 1,"Agree strongly",
+                        ifelse(europeanvalues$D081 == 2, "Agree",
+                               ifelse(europeanvalues$D081 == 3, "Neither agree nor disagree",
+                                      ifelse(europeanvalues$D081 == 4, "Disagree",
+                                             ifelse(europeanvalues$D081 == 5, "Disagree strongly",
+                                                    "missing"
+))))))
+
+
+table(europeanvalues$homo_parents)
+
+
+europeanvalues <-mutate(
+  europeanvalues,
+  justifiable_homo = ifelse(europeanvalues$F118 <= 2, "Never justifiable",
+                            ifelse(europeanvalues$F118 <= 4, "Sometimes justifiable",
+                                   ifelse(europeanvalues$F118 <= 6, "Neither justifiable nor not",
+                                          ifelse(europeanvalues$F118 <= 8, "Often justifiable",
+                                                 ifelse(europeanvalues$F118 <= 10, "Always justifiable",
+                                                        "missing"
+                                                 ))))))
+table(europeanvalues$justifiable_homo)
+
+
+europeanvalues <-mutate(
+  europeanvalues,
+  edu_level = ifelse(europeanvalues$X025R == 1, "Lower",
+                     ifelse(europeanvalues$X025R == 2, "Middle",
+                            ifelse(europeanvalues$X025R == 3, "Upper",
+                                   "missing"
+                            ))))
+table(europeanvalues$edu_level)
+
+
+table(europeanvalues$homo_parents)
+table(europeanvalues$justifiable_homo)
+table(europeanvalues$edu_level)
+
+tab_int <-select(europeanvalues, homo_parents, justifiable_homo, edu_level)
+
+
+
+
+
+```
+
+```{r}
+str(tab_int)
+
+
+tab_int <- mutate(
+  tab_int,
+  homo_par_rel = fct_relevel(homo_parents, 
+                             "Disagree strongly", "Disagree", "Neither agree nor disagree", 
+                             "Agree", "Agree strongly"))
+
+
+plot_homop<- filter(
+  tab_int,
+  homo_par_rel %in% c("Disagree strongly", "Disagree", "Neither agree nor disagree", 
+                      "Agree", "Agree strongly"),
+  edu_level %in% c("Lower", "Middle", "Upper"))
+
+
+
+tab_int <- mutate(
+  tab_int,
+  just_homo_rel = fct_relevel(justifiable_homo, 
+                              "Never justifiable", "Sometimes justifiable", "Neither justifiable nor not", 
+                              "Often justifiable", "Always justifiable"))
+
+
+plot_homop<- filter(
+  tab_int,
+  just_homo_rel %in% c("Never justifiable", "Sometimes justifiable", "Neither justifiable nor not", 
+                       "Often justifiable", "Always justifiable"),
+  edu_level %in% c("Lower", "Middle", "Upper"))
+
+
+
+tab_homp <- select(europeanvalues, D081, X025R) 
+
+  
+tab_homp_reg <- mutate(tab_homp,
+   homo_parents_reg = recode(D081,              
+                              `1` = 5,
+                              `2` = 4,
+                              `3` = 3,
+                              `4` = 2,
+                              `5` = 1
+                              ))
+
+
+tab_homp_reg <- filter (tab_homp_reg, homo_parents_reg > 0, X025R > 0)
+
+min(tab_homp_reg$homo_parents_reg)
+
+
+
+tab_homp_reg <- rename(
+  tab_homp_reg,
+  edu_level = X025R
+)
+names(tab_homp_reg)
+
+
+
+tab_homojust <- select(europeanvalues, F118,X025R)
+
+
+tab_homojust_reg <- mutate(tab_homojust,
+    homo_just_reg = recode(F118,              
+                              `1` = 1,
+                              `2` = 1,
+                              `3` = 2,
+                              `4` = 2,
+                              `5` = 3,
+                              `6` = 3,
+                              `7` = 4,
+                              `8` = 4,
+                              `9` = 5,
+                              `10`= 5
+    ))
+
+
+
+
+tab_homojust_reg <- filter (tab_homojust_reg, homo_just_reg > 0, X025R > 0)
+min(tab_homojust_reg$homo_just_reg)
+
+
+tab_homojust_reg <- rename(
+  tab_homojust_reg,
+  edu_level = X025R
+)
+names(tab_homojust_reg)
+
+min(tab_homojust_reg$homo_just_reg)
+
+
+```
+
+## Plots and regression models
+
+```{r}
+ggplot(plot_homop, aes(x=homo_par_rel, fill = edu_level)) +
+  geom_bar(position = "dodge") +
+  scale_fill_manual(values = c("darkorange2", "dodgerblue3", "palegreen3")) +
+  ggtitle("Level of agreement with the statement: \n Homosexual couples are as good parents as other couples") +
+  ylab("Homosexual couples are as good parents as other couples") +
+  xlab("Level of agreement") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x=element_text(angle=45,hjust=1)) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+This bar-chart allows us to see that the number of lower educated people who strongly agree with the statement: 'Homosexual couples are as good parents as other couples', is much lower than the number of upper educated people who strongly agree with the statement. Instead the difference between lower and upper educated people within the category 'strongly disagree' is almost null.
+
+```{r}
+ggplot(plot_homop, aes(x=just_homo_rel, fill = edu_level)) +
+  geom_bar(position = "dodge") +
+  scale_fill_manual(values = c("darkorange2", "dodgerblue3", "palegreen3")) +
+  ggtitle("How much is homosexuality justifiable") +
+  ylab("How much is homosexuality justifiable") +
+  xlab("Attitudes towards homosexuality") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x=element_text(angle=45,hjust=1)) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+This bar chart allows us to visualize the fact that the number of lower educated people who think that homosexuality is never justifiable is higher than the number of higher educated people who think the same thing. On the other hand, the number of higher educated people who think that homosexuality is always justifiable is much higher than the number of lower educated people who think the same thing.
+
+```{r}
+reg1 <- lm(homo_parents_reg ~ factor(edu_level),
+           data = tab_homp_reg)
+summary(reg1)
+
+pred1 <- ggpredict(reg1, terms = "edu_level")
+pred1
+```
+
+In this first regression it's shown how compared to the reference category, which corresponds to the lower lever of education, both the coefficients corresponding to middle and upper education are positive. This means that higher the level of education is, higher will be the level of agreement with the statement saying that homosexual couples are as good as other couples.
+
+```{r}
+reg2 <- lm(homo_just_reg ~ factor(edu_level),
+           data = tab_homojust_reg)
+summary(reg2)
+
+pred2<- ggpredict(reg2, terms = "edu_level")
+pred2
+```
+
+Also in the second regression we see that, compared to the reference category which corresponds to the lower lever of education, both the coefficients are positive. This means that higher level of education corresponds to more tolerant attitude towards homosexuality.
+
+
+## Conclusion 
+
+Observing the bar-charts and the regressions we can conclude that, overall, people with higher levels of education tend to be more tolerant towards homosexual couples and homosexuality in general. However, not all the results we obtained met our expectations. For example, the difference between lower and upper educated people within the category 'strongly disagree' is almost null, this is probably due to the fact that we are observing 81 countries all together, where the respondents normally have different cultural backgrounds.
+
+
