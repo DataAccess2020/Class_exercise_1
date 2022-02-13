@@ -26,9 +26,7 @@ library(texreg)
 ## Data and method
 
 ```{r}
-
 europeanvalues <- haven::read_dta(here::here("ZA7505_v2-0-0.dta"))
-
 ```
 
 We took into consideration three variables: D081, F118 and X025R. In the first one the respondents had to express their level of agreement with the statement: 'Homosexual couples are as good parents as other couples'. In the second one the respondents had to say how much justifiable homosexuality is on a scale from 1 to 10. Finally, the last one is about the level of education of the respondents from 1 to 3.
@@ -50,6 +48,8 @@ europeanvalues <-mutate(
                                                     "missing"
 ))))))
 
+table(europeanvalues$homo_parents)
+
 europeanvalues <-mutate(
   europeanvalues,
   justifiable_homo = ifelse(europeanvalues$F118 <= 2, "Never justifiable",
@@ -59,7 +59,7 @@ europeanvalues <-mutate(
                                                  ifelse(europeanvalues$F118 <= 10, "Always justifiable",
                                                         "missing"
                                                  ))))))
-
+table(europeanvalues$justifiable_homo)
 
 europeanvalues <-mutate(
   europeanvalues,
@@ -68,21 +68,22 @@ europeanvalues <-mutate(
                             ifelse(europeanvalues$X025R == 3, "Upper",
                                    "missing"
                             ))))
+table(europeanvalues$edu_level)
 
-
-kable(table(europeanvalues$homo_parents), col.names = c("rights homo coup", "freq"))
-kable(table(europeanvalues$justifiable_homo), col.names = c("homo just", "freq"))
-kable(table(europeanvalues$edu_level), col.names = c("lev edu", "freq"))
-
-
+table(europeanvalues$homo_parents)
+table(europeanvalues$justifiable_homo)
+table(europeanvalues$edu_level)
 
 tab_int <-select(europeanvalues, homo_parents, justifiable_homo, edu_level)
 
+View(tab_int)
 ```
 
 From the variable of interest we removed the negative values and did some data preparation for the regression models.
 
 ```{r}
+str(tab_int)
+
 tab_int <- mutate(
   tab_int,
   homo_par_rel = fct_relevel(homo_parents, 
@@ -95,29 +96,17 @@ plot_homop<- filter(
                       "Agree", "Agree strongly"),
   edu_level %in% c("Lower", "Middle", "Upper"))
 
-
 tab_int <- mutate(
   tab_int,
   just_homo_rel = fct_relevel(justifiable_homo, 
                               "Never justifiable", "Sometimes justifiable", "Neither justifiable nor not", 
                               "Often justifiable", "Always justifiable"))
 
-
 plot_homop<- filter(
   tab_int,
   just_homo_rel %in% c("Never justifiable", "Sometimes justifiable", "Neither justifiable nor not", 
                        "Often justifiable", "Always justifiable"),
   edu_level %in% c("Lower", "Middle", "Upper"))
-
-europeanvalues <-mutate(
-  europeanvalues,
-  homo_parents = ifelse(europeanvalues$D081 == 1,"Agree strongly",
-                        ifelse(europeanvalues$D081 == 2, "Agree",
-                               ifelse(europeanvalues$D081 == 3, "Neither agree nor disagree",
-                                      ifelse(europeanvalues$D081 == 4, "Disagree",
-                                             ifelse(europeanvalues$D081 == 5, "Disagree strongly",
-                                                    "missing"
-))))))
 
 tab_homp_reg <- europeanvalues %>%                    
   select(D081, X025R) %>%                
@@ -130,13 +119,18 @@ tab_homp_reg <- europeanvalues %>%
                               `5` = 1,
                               ))
 
+tab_homp_reg$homo_parents_reg
+
 tab_homp_reg <- filter (tab_homp_reg, homo_parents_reg > 0, X025R > 0)
 
+min(tab_homp_reg$homo_parents_reg)
 
 tab_homp_reg <- rename(
   tab_homp_reg,
   edu_level = X025R
 )
+names(tab_homp_reg)
+
 
 tab_homojust_reg <- europeanvalues %>% 
   select(F118,X025R) %>%
@@ -160,6 +154,9 @@ tab_homojust_reg <- rename(
   tab_homojust_reg,
   edu_level = X025R
 )
+names(tab_homojust_reg)
+
+min(tab_homojust_reg$homo_just_reg)
 ```
 
 ## Plots and regression models
@@ -189,6 +186,7 @@ ggplot(plot_homop, aes(x=just_homo_rel, fill = edu_level)) +
   theme(axis.text.x=element_text(angle=45,hjust=1)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 This bar chart allows us to visualize the fact that the number of lower educated people who think that homosexuality is never justifiable is higher than the number of higher educated people who think the same thing. On the other hand, the number of higher educated people who think that homosexuality is always justifiable is much higher than the number of lower educated people who think the same thing.
 
 ```{r}
@@ -210,7 +208,9 @@ summary(reg2)
 pred2<- ggpredict(reg2, terms = "edu_level")
 pred2
 ```
+
 Also in the second regression we see that, compared to the reference category which corresponds to the lower lever of education, both the coefficients are positive. This means that higher level of education corresponds to more tolerant attitude towards homosexuality.
+
 ```{r}
 htmlreg(list(reg1, reg2),
         custom.model.names = c("Homosexual parents", "Justifiable homosexuality"),
