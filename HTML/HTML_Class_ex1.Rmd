@@ -23,10 +23,9 @@ Then, from the variable of interest, we removed the negative values and did some
 library(tidyverse)
 library(rio)
 library(ggeffects)
+library(texreg)
 
 europeanvalues <- import("ZA7505_v2-0-0.dta")
-
-View(europeanvalues)
 
 
 table(europeanvalues$D081)
@@ -96,8 +95,7 @@ tab_int <- mutate(
 
 plot_homop<- filter(
   tab_int,
-  homo_par_rel %in% c("Disagree strongly", "Disagree", "Neither agree nor disagree", 
-                      "Agree", "Agree strongly"),
+  homo_par_rel %in% c("Disagree strongly", "Disagree", "Neither agree nor disagree", "Agree", "Agree strongly"),
   edu_level %in% c("Lower", "Middle", "Upper"))
 
 
@@ -109,7 +107,7 @@ tab_int <- mutate(
                               "Often justifiable", "Always justifiable"))
 
 
-plot_homop<- filter(
+plot_homojust<- filter(
   tab_int,
   just_homo_rel %in% c("Never justifiable", "Sometimes justifiable", "Neither justifiable nor not", 
                        "Often justifiable", "Always justifiable"),
@@ -196,7 +194,7 @@ ggplot(plot_homop, aes(x=homo_par_rel, fill = edu_level)) +
 This bar-chart allows us to see that the number of lower educated people who strongly agree with the statement: 'Homosexual couples are as good parents as other couples', is much lower than the number of upper educated people who strongly agree with the statement. Instead the difference between lower and upper educated people within the category 'strongly disagree' is almost null.
 
 ```{r}
-ggplot(plot_homop, aes(x=just_homo_rel, fill = edu_level)) +
+ggplot(plot_homojust, aes(x=just_homo_rel, fill = edu_level)) +
   geom_bar(position = "dodge") +
   scale_fill_manual(values = c("darkorange2", "dodgerblue3", "palegreen3")) +
   ggtitle("How much is homosexuality justifiable") +
@@ -231,9 +229,22 @@ pred2
 
 Also in the second regression we see that, compared to the reference category which corresponds to the lower lever of education, both the coefficients are positive. This means that higher level of education corresponds to more tolerant attitude towards homosexuality.
 
+```{r, results = 'asis'}
 
-## Conclusion 
+htmlreg(list(reg1, reg2),
+        custom.model.names = c("attitude towards homosexual couples", "attitude towards homosexuality"),
+        caption = "Regression models for attitude towards homosexual couples and towards homosexuality")
+```
+
+# Conclusion 
 
 Observing the bar-charts and the regressions we can conclude that, overall, people with higher levels of education tend to be more tolerant towards homosexual couples and homosexuality in general. However, not all the results we obtained met our expectations. For example, the difference between lower and upper educated people within the category 'strongly disagree' is almost null, this is probably due to the fact that we are observing 81 countries all together, where the respondents normally have different cultural backgrounds.
 
+## References
 
+Inglehart, R. (2009). 
+Postmaterialist Values and the Shift from Survival to 
+Self‐Expression Value,*The Oxford Handbook of Political Behavior*.
+
+Smith, T. W., Son, J., Kim, J. (2014). Public Attitudes towards Homosexuality and Gay Rights
+across Time and Countries. The Williams Institute.
