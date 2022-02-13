@@ -32,11 +32,11 @@ table(europeanvalues$homo_parents)
 #to 1 and 2, etc... 
 europeanvalues <-mutate(
   europeanvalues,
-  justifiable_homo = ifelse(europeanvalues$F118 == 1: 2, "Never justifiable",
-                            ifelse(europeanvalues$F118 == 3: 4, "Sometimes justifiable",
-                                   ifelse(europeanvalues$F118 == 5: 6, "Neither justifiable nor not",
-                                          ifelse(europeanvalues$F118 == 7: 8, "Often justifiable",
-                                                 ifelse(europeanvalues$F118 == 9: 10, "Always justifiable",
+  justifiable_homo = ifelse(europeanvalues$F118 <= 2, "Never justifiable",
+                            ifelse(europeanvalues$F118 <= 4, "Sometimes justifiable",
+                                   ifelse(europeanvalues$F118 <= 6, "Neither justifiable nor not",
+                                          ifelse(europeanvalues$F118 <= 8, "Often justifiable",
+                                                 ifelse(europeanvalues$F118 <= 10, "Always justifiable",
                                                         "missing"
                                                  ))))))
 table(europeanvalues$justifiable_homo)
