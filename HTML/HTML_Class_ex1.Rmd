@@ -1,7 +1,6 @@
 ---
-title: "Untitled"
-author: "Erica Ravarelli_Alba Proficuo"
-date: '2022-02-13'
+title: "Indvidual attitudes towards homosexuality and homosexual couples: testing Ronald Inglehart's postmaterialism theory"
+author: "Alba Proficuo, Erica Ravarelli"
 output: html_document
 ---
 # Introduction
